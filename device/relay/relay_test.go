@@ -1,0 +1,21 @@
+package relay
+
+import (
+	"fmt"
+	"time"
+	"testing"
+)
+
+func TestRelay(t *testing.T) {
+	relay := Connect()
+	relay.OpenA()
+	relay.OpenB()
+
+	t.Log("Open Success")
+	time.Sleep(time.Second * 3)
+
+	relay.CloseA()
+	relay.CloseB()
+	
+	t.Log("Close Success")
+}
