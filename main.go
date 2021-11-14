@@ -26,12 +26,21 @@ func main() {
 	reporter := reporter.New("")
 
 	reporter.SetTrigger(lightOperator)
-	reporter.Register("relay", relayOperator.Switch)
+	reporter.Register("relay", func() (interface{}, error) {
+		if lightOperator.IsOpen() {
+			relayOperator.Open()
+		} else {
+			relayOperator.Close()
+		}
+
+		return "Success", nil
+	})
 
 	go reporter.Run()
 
 	exporter := exporter.NewExporter()
 	exporter.Register("light", lightOperator.QueryLight)
+	exporter.Register("switch", relayOperator.Switch)
 
 	exporter.Run()
 }

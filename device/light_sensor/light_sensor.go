@@ -77,12 +77,7 @@ func (s *LightSensor) IsConnected() bool {
 		return false
 	}
 
-	line, _, err := s.buf.ReadLine()
-	if err != nil {
-		return false
-	}
-
-	if !okReg.Match(line) {
+	if !s.waitReply(okReg) {
 		return false
 	}
 
@@ -99,9 +94,9 @@ func (s *LightSensor) SendAsciiModeChange() error {
 		return err
 	}
 
-	if !s.waitReply(initSuccessReg) {
-		log.Error(ErrWrongReply)
-	}
+	// if !s.waitReply(initSuccessReg) {
+	// 	log.Error(ErrWrongReply)
+	// }
 
 	return s.SetFeedBackSpeed(1000)
 }
@@ -112,9 +107,9 @@ func (s *LightSensor) SetFeedBackSpeed(speed int) error {
 		return err
 	}
 
-	if !s.waitReply(okAndLightReg) {
-		return ErrWrongReply
-	}
+	// if !s.waitReply(okAndLightReg) {
+	// 	return ErrWrongReply
+	// }
 
 	return nil
 }

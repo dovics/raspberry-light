@@ -21,3 +21,11 @@ func (o *RelayOperator) Switch() (interface{}, error) {
 
 	return "Success", nil
 }
+
+func (o *RelayOperator) Open() {
+	o.relay.OpenA()
+}
+
+func (o *RelayOperator) Close() {
+	o.relay.CloseA()
+}

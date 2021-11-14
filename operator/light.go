@@ -63,6 +63,10 @@ func (t *LightOperator) QueryLight() (value interface{}, err error) {
 	}
 }
 
+func (t *LightOperator) IsOpen() bool {
+	return t.isOpen
+}
+
 func (t *LightOperator) run() {
 	for {
 		value, err := t.QueryLight()
@@ -71,14 +75,8 @@ func (t *LightOperator) run() {
 			continue
 		}
 
-		if value.(int) < 1000 && !t.isOpen {
-			t.isOpen = true
-			select {
-			case t.ch <- struct{}{}:
-			default:
-			}
-		} else if value.(int) > 1000 && t.isOpen {
-			t.isOpen = false
+		if value.(int) < 1000 && !t.isOpen || value.(int) > 1000 && t.isOpen {
+			t.isOpen = !t.isOpen
 			select {
 			case t.ch <- struct{}{}:
 			default:
