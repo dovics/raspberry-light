@@ -10,14 +10,15 @@ import (
 type LightOperator struct {
 	sensor *light_sensor.LightSensor
 	ch     chan struct{}
+	isOpen bool
 }
-  
+
 func NewLightOperator(sensor *light_sensor.LightSensor) *LightOperator {
 	trigger := &LightOperator{
 		sensor: sensor,
 		ch:     make(chan struct{}),
 	}
-	
+
 	if err := sensor.SendAsciiModeChange(); err != nil {
 		log.Error(err)
 	}
@@ -30,10 +31,10 @@ func (t *LightOperator) Chan() <-chan struct{} {
 	return t.ch
 }
 
-func (t *LightOperator) QueryLight() (value int, err error){
+func (t *LightOperator) QueryLight() (value interface{}, err error) {
 	retry := 0
-	for {	
-		value, err =  t.sensor.Read()
+	for {
+		value, err = t.sensor.Read()
 		if err != nil {
 			retry++
 			time.Sleep(time.Second)
@@ -41,7 +42,7 @@ func (t *LightOperator) QueryLight() (value int, err error){
 				return
 			}
 
-			if retry % 10 == 0 {
+			if retry%10 == 0 {
 				if err = t.sensor.Reconnect(); err != nil {
 					log.Error("reconnect fail, error: ", err)
 				} else {
@@ -49,7 +50,7 @@ func (t *LightOperator) QueryLight() (value int, err error){
 				}
 			}
 
-			if retry % 5 == 0 {
+			if retry%5 == 0 {
 				if err := t.sensor.SendAsciiModeChange(); err != nil {
 					log.Error("send mode change fail, error: ", err)
 				} else {
@@ -63,14 +64,21 @@ func (t *LightOperator) QueryLight() (value int, err error){
 }
 
 func (t *LightOperator) run() {
-	for {	
+	for {
 		value, err := t.QueryLight()
 		if err != nil {
 			log.Error("query light error: ", err)
 			continue
 		}
-		log.Info(value)
-		if value < 1000 {
+
+		if value.(int) < 1000 && !t.isOpen {
+			t.isOpen = true
+			select {
+			case t.ch <- struct{}{}:
+			default:
+			}
+		} else if value.(int) > 1000 && t.isOpen {
+			t.isOpen = false
 			select {
 			case t.ch <- struct{}{}:
 			default:

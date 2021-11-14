@@ -18,3 +18,16 @@ func TestRelay(t *testing.T) {
 
 	t.Log("Close Success")
 }
+
+func TestRelayIsOpen(t *testing.T) {
+	relay := Connect()
+	relay.OpenA()
+
+	if !relay.IsOpenA() {
+		t.Error("A should be open")
+	}
+
+	if relay.IsOpenB() {
+		t.Error("B should be close")
+	}
+}

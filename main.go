@@ -6,7 +6,10 @@ import (
 	"github.com/tarm/serial"
 
 	"github.com/dovics/raspberry-light/device/light_sensor"
+	"github.com/dovics/raspberry-light/device/relay"
+	"github.com/dovics/raspberry-light/exporter"
 	"github.com/dovics/raspberry-light/operator"
+	"github.com/dovics/raspberry-light/reporter"
 )
 
 func main() {
@@ -16,7 +19,19 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	operator.NewLightOperator(sensor)
+	lightOperator := operator.NewLightOperator(sensor)
 
-	for{}
+	r := relay.Connect()
+	relayOperator := operator.NewRelayOperator(r)
+	reporter := reporter.New("")
+
+	reporter.SetTrigger(lightOperator)
+	reporter.Register("relay", relayOperator.Switch)
+
+	go reporter.Run()
+
+	exporter := exporter.NewExporter()
+	exporter.Register("light", lightOperator.QueryLight)
+
+	exporter.Run()
 }

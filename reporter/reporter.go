@@ -11,6 +11,7 @@ import (
 )
 
 type Reporter interface {
+	Run()
 	Register(name string, operate Operate)
 	SetTrigger(Trigger) error
 }
@@ -23,8 +24,9 @@ type Trigger interface {
 
 func New(url string) Reporter {
 	return &defaultReporter{
-		target: url,
-		client: *http.DefaultClient,
+		target:   url,
+		client:   *http.DefaultClient,
+		operates: make(map[string]Operate),
 	}
 }
 
@@ -47,21 +49,26 @@ func (r *defaultReporter) Run() {
 				data[k] = err
 			}
 		}
+
 		buf, err := json.Marshal(data)
 		if err != nil {
 			log.Info(err)
 			continue
 		}
-		resp, err := r.client.Post(r.target, "json", bytes.NewReader(buf))
-		if err != nil {
-			log.Info(err)
-			continue
+
+		if r.target != "" {
+			resp, err := r.client.Post(r.target, "json", bytes.NewReader(buf))
+			if err != nil {
+				log.Info(err)
+				continue
+			}
+
+			if resp.StatusCode != http.StatusOK {
+				log.Info(errors.New("resp status isn't OK"))
+				continue
+			}
 		}
 
-		if resp.StatusCode != http.StatusOK {
-			log.Info(errors.New("resp status isn't OK"))
-			continue
-		}
 	}
 }
 

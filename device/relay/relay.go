@@ -10,7 +10,7 @@ type Relay struct {
 }
 
 func Connect() *Relay {
-	err :=	rpio.Open()
+	err := rpio.Open()
 	if err != nil {
 		panic(err)
 	}
@@ -20,7 +20,7 @@ func Connect() *Relay {
 	ina.Output()
 	inb.Output()
 
-	return &Relay {
+	return &Relay{
 		ina,
 		inb,
 	}
@@ -32,6 +32,14 @@ func (r *Relay) OpenA() {
 
 func (r *Relay) OpenB() {
 	r.inb.High()
+}
+
+func (r *Relay) IsOpenA() bool {
+	return r.ina.Read() == rpio.High
+}
+
+func (r *Relay) IsOpenB() bool {
+	return r.inb.Read() == rpio.High
 }
 
 func (r *Relay) CloseA() {
