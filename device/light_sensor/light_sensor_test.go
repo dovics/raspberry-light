@@ -1,8 +1,8 @@
 package light_sensor
 
 import (
-	"time"
 	"testing"
+	"time"
 
 	"github.com/tarm/serial"
 )
@@ -14,11 +14,11 @@ func TestLightSensor(t *testing.T) {
 		panic(err)
 	}
 
-	sensor := Connect(c)
+	sensor := Connect(s)
 	for {
 		data, err := sensor.ReadLine()
 		if err != nil {
-			LogError(err)
+			t.Error(err)
 		}
 
 		t.Log(data)

@@ -7,13 +7,13 @@ import (
 
 type LightSensor struct {
 	port *serial.Port
-	buf *bufio.Reader
+	buf  *bufio.Reader
 }
 
 func Connect(port *serial.Port) *LightSensor {
 	return &LightSensor{
 		port: port,
-		buf: bufio.NewReader(port),
+		buf:  bufio.NewReader(port),
 	}
 }
 

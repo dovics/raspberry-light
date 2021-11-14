@@ -1,9 +1,8 @@
 package relay
 
 import (
-	"fmt"
-	"time"
 	"testing"
+	"time"
 )
 
 func TestRelay(t *testing.T) {
@@ -16,6 +15,6 @@ func TestRelay(t *testing.T) {
 
 	relay.CloseA()
 	relay.CloseB()
-	
+
 	t.Log("Close Success")
 }
