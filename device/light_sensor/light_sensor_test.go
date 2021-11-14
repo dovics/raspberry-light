@@ -7,16 +7,15 @@ import (
 	"github.com/tarm/serial"
 )
 
-func TestLightSensor(t *testing.T) {
+func TestLightSensorBySerial(t *testing.T) {
 	c := &serial.Config{Name: "/dev/serial0", Baud: 9600, ReadTimeout: time.Second * 5}
-	s, err := serial.OpenPort(c)
+	
+	sensor, err := ConnectBySerial(c)
 	if err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
-
-	sensor := Connect(s)
 	for {
-		data, err := sensor.ReadLine()
+		data, err := sensor.Read()
 		if err != nil {
 			t.Error(err)
 		}
@@ -24,4 +23,17 @@ func TestLightSensor(t *testing.T) {
 		t.Log(data)
 	}
 
+}
+
+func TestLightSensorModeChange(t *testing.T) {
+	c := &serial.Config{Name: "/dev/serial0", Baud: 9600, ReadTimeout: time.Second * 5}
+	
+	sensor, err := ConnectBySerial(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := sensor.SendAsciiModeChange();err != nil {
+		t.Fatal(err)
+	}
 }
